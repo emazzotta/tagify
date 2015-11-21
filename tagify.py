@@ -1,41 +1,33 @@
+# -*- coding: utf-8 -*-
+
 import glob
 import re
-import subprocess
-import sys
-
-DEBUG = True
+import os
 
 files = glob.glob('/Users/simonbreiter/Documents/Notizen/Mathematik/*.md')
 
-file_with_yaml = []
+tempTag = []
 
 for file in files:
     with open(file, "r") as md_file:
         md_content = md_file.read()
     yaml_search = re.search('\-\-\-\\n(.*)\\n\-\-\-', md_content)
     if yaml_search:
-        file_with_yaml.append({"file": file, "tags": yaml_search.group(1).replace("Tags: ", "").split(",")})
+        current_file_with_yaml = {
+            "file": file,
+            "tags": yaml_search.group(1).replace("Tags: ", "").strip().replace(",","").split()
+        }
+        filename = current_file_with_yaml['file']
+        tags = current_file_with_yaml['tags']
 
-def write_attributes(F, TagList):
-    Result = ""
+        # Add string to tag
+        for tag in tags:
+            tempTag.append("{}{}{}".format("<string>", tag, "</string>"))
 
-    plistFront = '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"><array>'
-    plistEnd = '</array></plist>'
-    plistTagString = ''
-    for Tag in TagList:
-        plistTagString = plistTagString + '<string>{}</string>'.format(Tag.replace("'", "-"))
-    TagText = plistFront + plistTagString + plistEnd
+        # combine tags to string
+        taglist = "".join(tempTag)
 
-    OptionalTag = "com.apple.metadata:"
-    XattrList = ["kMDItemFinderComment", "_kMDItemUserTags", "kMDItemOMUserTags"]
-    for Field in XattrList:
-        XattrCommand = 'xattr -w {0} \'{1}\' "{2}"'.format(OptionalTag + Field, TagText.encode("utf8"), F)
-        if DEBUG:
-            sys.stderr.write("XATTR: {}\n".format(XattrCommand))
-        ProcString = subprocess.check_output(XattrCommand, stderr=subprocess.STDOUT, shell=True)
-        Result += ProcString
-    return Result
+        os.system("xattr -w \'com.apple.metadata:_kMDItemUserTags\' \'<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\"><plist version=\"1.0\"><array>{0}</array></plist>\' \'{1}\'".format(taglist, filename))
 
-
-for file_to_tag in file_with_yaml:
-    write_attributes(file_to_tag["file"], file_to_tag["tags"])
+        # Empty tempTag list
+        tempTag = []
