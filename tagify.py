@@ -15,14 +15,14 @@ for file in files:
     if yaml_search:
         current_file_with_yaml = {
             "file": file,
-            "tags": yaml_search.group(1).replace("Tags: ", "").strip().replace(",","").split()
+            "tags": yaml_search.group(1).replace("Tags: ", "").split(',')
         }
         filename = current_file_with_yaml['file']
         tags = current_file_with_yaml['tags']
 
         # Add string to tag
         for tag in tags:
-            tempTag.append("{}{}{}".format("<string>", tag, "</string>"))
+            tempTag.append("{}{}{}".format("<string>", tag.strip(), "</string>"))
 
         # combine tags to string
         taglist = "".join(tempTag)
