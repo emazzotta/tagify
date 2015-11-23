@@ -4,9 +4,11 @@ import glob
 import re
 import os
 
-files = glob.glob('/Users/simonbreiter/Documents/Notizen/Mathematik/*.md')
+files = glob.glob('/Users/simonbreiter/Documents/Notizen/**/*.md')
 
 tempTag = []
+tagCounter = 0
+counter = 0
 
 for file in files:
     with open(file, "r") as md_file:
@@ -23,6 +25,7 @@ for file in files:
         # Add string to tag
         for tag in tags:
             tempTag.append("{}{}{}".format("<string>", tag.strip(), "</string>"))
+            tagCounter += 1
 
         # combine tags to string
         taglist = "".join(tempTag)
@@ -31,3 +34,8 @@ for file in files:
 
         # Empty tempTag list
         tempTag = []
+        counter += 1
+
+
+os.system("osascript -e \'display notification \"{} Tags von {} Notizen erzeugt\" with title \"Tagify\"\'".format(tagCounter, counter))
+
