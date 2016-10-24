@@ -14,8 +14,7 @@ Tags: foo, bar, baz
 
 Use command line interface to specify path from where to search markdown files:
 
-```
-#!bash
+```bash
 tagify -p your/path
 ```
 
