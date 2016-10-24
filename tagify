@@ -11,6 +11,7 @@ parser.add_argument('-p', '-path', type=str,
 
 
 class Stats(object):
+    
     def __init__(self):
         self.tag_counter = 0
         self.file_counter = 0
@@ -28,9 +29,7 @@ class Stats(object):
         """
         Display statistics as osx notification
         """
-        os.system(
-            "osascript -e \'display notification \"{} Tags von {} Notizen erzeugt\" with title \"Tagify\"\'".format(
-                self.tag_counter, self.file_counter))
+        os.system("osascript -e \'display notification \"{} Tags von {} Notizen erzeugt\" with title \"Tagify\"\'".format(self.tag_counter, self.file_counter))
 
 
 class Tagger(object):
@@ -42,9 +41,7 @@ class Tagger(object):
         """
         Wrap tags in xml
         """
-        xml_tags = ["<string>{}</string>".format(tag.strip()) for tag in tags]
-        self.stats.increase_tag_counter_by(len(xml_tags))
-        return "".join(xml_tags)
+        return "".join(["<string>{}</string>".format(tag.strip()) for tag in tags])
 
     @staticmethod
     def append_xml_tags(xml_tags, filename):
@@ -70,10 +67,9 @@ class Tagger(object):
                     "file": file,
                     "tags": yaml_search.group(1).replace("Tags: ", "").replace("'", "").split(',')
                 }
-                filename = yaml_front_matter['file']
-                tags = yaml_front_matter['tags']
-                xml_tags = self.wrap_as_xml(tags)
-                self.append_xml_tags(xml_tags, filename)
+                xml_tags = self.wrap_as_xml(yaml_front_matter['tags'])
+                self.append_xml_tags(xml_tags, yaml_front_matter['file'])
+                self.stats.increase_tag_counter_by(len(xml_tags))
                 self.stats.increase_file_counter()
 
         self.stats.display_statistics()
