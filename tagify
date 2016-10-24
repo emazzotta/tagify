@@ -9,43 +9,76 @@ parser = argparse.ArgumentParser(description='Parse YAML Front Matters and write
 parser.add_argument('-p', '-path', type=str,
                     help='Path to folder which contains markdown files.')
 
-def tagFiles(filePath):
-    tempTag = []
-    tagCounter = 0
-    counter = 0
 
-    for file in filePath:
+class Stats(object):
+    def __init__(self):
+        self.tag_counter = 0
+        self.file_counter = 0
+
+    def count_tag(self):
+        self.tag_counter += 1
+
+    def count_file(self):
+        self.file_counter += 1
+
+    def display_statistics(self):
+        """
+        Display statistics as osx notification
+        """
+        os.system(
+            "osascript -e \'display notification \"{} Tags von {} Notizen erzeugt\" with title \"Tagify\"\'".format(
+                self.tag_counter, self.file_counter))
+
+
+def wrap_tags(tags):
+    """
+    Wrap tags in xml
+    """
+    xml_tags = []
+    for tag in tags:
+        xml_tags.append("{}{}{}".format("<string>", tag.strip(), "</string>"))
+        stats.count_tag()
+    return "".join(xml_tags)
+
+
+def write_tags_to_file(xml_tags, filename):
+    """
+    Write wrapped xml tags to a file
+    """
+    os.system(
+        "xattr -w \'com.apple.metadata:_kMDItemUserTags\' \'<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\"><plist version=\"1.0\"><array>{0}</array></plist>\' \'{1}\'".format(
+            xml_tags, filename))
+
+
+def tag_files(file_path):
+    """
+    Read front matter tags in each file in file path
+    """
+    for file in file_path:
         with open(file, "r") as md_file:
             md_content = md_file.read()
-        yaml_search = re.search('\-\-\-\\n(.*)\\n\-\-\-', md_content)
+        yaml_search = re.search('^---\n(.*)\n---', md_content)
         if yaml_search:
-            current_file_with_yaml = {
+            yaml_front_matter = {
                 "file": file,
-                "tags": yaml_search.group(1).replace("Tags: ", "").split(',')
+                "tags": yaml_search.group(1).replace("Tags: ", "").replace("'", "").split(',')
             }
-            filename = current_file_with_yaml['file']
-            tags = current_file_with_yaml['tags']
+            filename = yaml_front_matter['file']
+            tags = yaml_front_matter['tags']
+            xml_tags = wrap_tags(tags)
+            write_tags_to_file(xml_tags, filename)
+            stats.count_file()
 
-            # Add string to tag
-            for tag in tags:
-                tempTag.append("{}{}{}".format("<string>", tag.strip(), "</string>"))
-                tagCounter += 1
+    stats.display_statistics()
 
-            # combine tags to string
-            taglist = "".join(tempTag)
 
-            os.system("xattr -w \'com.apple.metadata:_kMDItemUserTags\' \'<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\"><plist version=\"1.0\"><array>{0}</array></plist>\' \'{1}\'".format(taglist, filename))
+stats = Stats()
 
-            # Empty tempTag list
-            tempTag = []
-            counter += 1
-
-    os.system("osascript -e \'display notification \"{} Tags von {} Notizen erzeugt\" with title \"Tagify\"\'".format(tagCounter, counter))
 
 def main():
     args = parser.parse_args()
-    filePath = glob.glob(args.p + "/**/*.md", recursive=True)
-    tagFiles(filePath)
+    tag_files(glob.glob(args.p + "/**/*.md", recursive=True))
+
 
 if __name__ == '__main__':
     main()
