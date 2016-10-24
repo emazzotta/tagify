@@ -38,7 +38,7 @@ class Tagger(object):
     def __init__(self, stats):
         self.stats = stats
 
-    def wrap_tags(self, tags):
+    def wrap_as_xml(self, tags):
         """
         Wrap tags in xml
         """
@@ -47,7 +47,7 @@ class Tagger(object):
         return "".join(xml_tags)
 
     @staticmethod
-    def write_tags_to_file(xml_tags, filename):
+    def append_xml_tags(xml_tags, filename):
         """
         Write wrapped xml tags to a file
         """
@@ -72,16 +72,15 @@ class Tagger(object):
                 }
                 filename = yaml_front_matter['file']
                 tags = yaml_front_matter['tags']
-                xml_tags = self.wrap_tags(tags)
-                self.write_tags_to_file(xml_tags, filename)
+                xml_tags = self.wrap_as_xml(tags)
+                self.append_xml_tags(xml_tags, filename)
                 self.stats.increase_file_counter()
 
         self.stats.display_statistics()
 
 
 def main():
-    stats = Stats()
-    tagger = Tagger(stats)
+    tagger = Tagger(Stats())
     args = parser.parse_args()
     filepath = glob.glob(args.p + "/**/*.md", recursive=True)
     tagger.tag_files(filepath)
