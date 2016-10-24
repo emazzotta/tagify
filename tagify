@@ -54,7 +54,7 @@ class Tagger(object):
         os.system(
             "xattr -w 'com.apple.metadata:_kMDItemUserTags' " +
             "\"<!DOCTYPE plist PUBLIC '-//Apple//DTD PLIST 1.0//EN'" +
-            "'http://www.apple.com/DTDs/PropertyList-1.0.dtd'>'" +
+            "'http://www.apple.com/DTDs/PropertyList-1.0.dtd'>" +
             "<plist version='1.0'><array>{0}</array></plist>\" \'{1}\'".format(xml_tags, filename))
 
     def tag_files(self, file_path):
