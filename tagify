@@ -15,11 +15,14 @@ class Stats(object):
         self.tag_counter = 0
         self.file_counter = 0
 
-    def count_tag(self):
+    def increase_tag_counter(self):
         self.tag_counter += 1
 
-    def count_file(self):
+    def increase_file_counter(self):
         self.file_counter += 1
+
+    def increase_tag_counter_by(self, amount):
+        self.tag_counter += amount
 
     def display_statistics(self):
         """
@@ -30,54 +33,58 @@ class Stats(object):
                 self.tag_counter, self.file_counter))
 
 
-def wrap_tags(tags):
-    """
-    Wrap tags in xml
-    """
-    xml_tags = []
-    for tag in tags:
-        xml_tags.append("{}{}{}".format("<string>", tag.strip(), "</string>"))
-        stats.count_tag()
-    return "".join(xml_tags)
+class Tagger(object):
 
+    def __init__(self, stats):
+        self.stats = stats
 
-def write_tags_to_file(xml_tags, filename):
-    """
-    Write wrapped xml tags to a file
-    """
-    os.system(
-        "xattr -w \'com.apple.metadata:_kMDItemUserTags\' \'<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\"><plist version=\"1.0\"><array>{0}</array></plist>\' \'{1}\'".format(
-            xml_tags, filename))
+    def wrap_tags(self, tags):
+        """
+        Wrap tags in xml
+        """
+        xml_tags = ["<string>{}</string>".format(tag.strip()) for tag in tags]
+        self.stats.increase_tag_counter_by(len(xml_tags))
+        return "".join(xml_tags)
 
+    @staticmethod
+    def write_tags_to_file(xml_tags, filename):
+        """
+        Write wrapped xml tags to a file
+        """
+        os.system(
+            "xattr -w 'com.apple.metadata:_kMDItemUserTags' " +
+            "\"<!DOCTYPE plist PUBLIC '-//Apple//DTD PLIST 1.0//EN'" +
+            "'http://www.apple.com/DTDs/PropertyList-1.0.dtd'>'" +
+            "<plist version='1.0'><array>{0}</array></plist>\" {1}".format(xml_tags, filename))
 
-def tag_files(file_path):
-    """
-    Read front matter tags in each file in file path
-    """
-    for file in file_path:
-        with open(file, "r") as md_file:
-            md_content = md_file.read()
-        yaml_search = re.search('^---\n(.*)\n---', md_content)
-        if yaml_search:
-            yaml_front_matter = {
-                "file": file,
-                "tags": yaml_search.group(1).replace("Tags: ", "").replace("'", "").split(',')
-            }
-            filename = yaml_front_matter['file']
-            tags = yaml_front_matter['tags']
-            xml_tags = wrap_tags(tags)
-            write_tags_to_file(xml_tags, filename)
-            stats.count_file()
+    def tag_files(self, file_path):
+        """
+        Read front matter tags in each file in file path
+        """
+        for file in file_path:
+            with open(file, "r") as md_file:
+                md_content = md_file.read()
+            yaml_search = re.search('^---\n(.*)\n---', md_content)
+            if yaml_search:
+                yaml_front_matter = {
+                    "file": file,
+                    "tags": yaml_search.group(1).replace("Tags: ", "").replace("'", "").split(',')
+                }
+                filename = yaml_front_matter['file']
+                tags = yaml_front_matter['tags']
+                xml_tags = self.wrap_tags(tags)
+                self.write_tags_to_file(xml_tags, filename)
+                self.stats.increase_file_counter()
 
-    stats.display_statistics()
-
-
-stats = Stats()
+        self.stats.display_statistics()
 
 
 def main():
+    stats = Stats()
+    tagger = Tagger(stats)
     args = parser.parse_args()
-    tag_files(glob.glob(args.p + "/**/*.md", recursive=True))
+    filepath = glob.glob(args.p + "/**/*.md", recursive=True)
+    tagger.tag_files(filepath)
 
 
 if __name__ == '__main__':
