@@ -2,6 +2,12 @@
 
 Tagify reads the YAML Front Matters of your markdown files and creates according OS X tags.
 
+## Installation
+
+```bash
+pip3 install tagify
+```
+
 ## Usage
 
 Files that you want to be tagged need to have this pattern at the beginning:
