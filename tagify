@@ -80,7 +80,7 @@ class Tagger(object):
                 file = yaml_front_matter['file']
                 xml_tags = self._wrap_as_xml(tags)
                 self._append(tags=xml_tags, to=file)
-                self.stats.increase_tag_counter_by(len(xml_tags))
+                self.stats.increase_tag_counter_by(len(tags))
                 self.stats.increase_file_counter()
 
         self.stats.display_statistics()
