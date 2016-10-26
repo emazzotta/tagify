@@ -1,7 +1,7 @@
 from distutils.core import setup
 setup(
     name='tagify',
-    version='0.1.8',
+    version='0.1.9',
     description='parse yaml front matter and write osx tags',
     author='Simon Breiter, Emanuele Mazzotta',
     author_email='hello@simonbreiter.com, hello@emanuelemazzotta.com',
