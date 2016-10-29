@@ -79,7 +79,12 @@ class Tagger(object):
             if yaml_search:
                 yaml_front_matter = {
                     "file": file,
-                    "tags": yaml_search.group(1).replace("Tags: ", "").replace("'", "").split(',')
+                    "tags": yaml_search.group(1)
+                        .replace("Tags: ", "")
+                        .replace("'", "")
+                        .replace("`", "")
+                        .replace("\"", "")
+                        .split(',')
                 }
                 tags = yaml_front_matter['tags']
                 file = yaml_front_matter['file']

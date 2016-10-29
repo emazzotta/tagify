@@ -8,7 +8,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='tagify',
-    version='0.2.4',
+    version='0.2.5',
     description='parse yaml front matter and write osx tags',
     long_description=long_description,
     author='Simon Breiter, Emanuele Mazzotta',
