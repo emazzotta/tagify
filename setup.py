@@ -1,14 +1,17 @@
+import os
 from distutils.core import setup
-from os import path
+import os
 
-here = path.abspath(path.dirname(__file__))
+here = os.path.abspath(os.path.dirname(__file__))
+long_description = 'parse yaml front matter and write osx tags'
 
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
-    long_description = f.read()
+if os.path.exists('README.rst'):
+    with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
+        long_description = f.read()
 
 setup(
     name='tagify',
-    version='0.2.5',
+    version='0.2.6',
     description='parse yaml front matter and write osx tags',
     long_description=long_description,
     author='Simon Breiter, Emanuele Mazzotta',
