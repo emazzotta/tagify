@@ -11,13 +11,13 @@ if os.path.exists('README.rst'):
 
 setup(
     name='tagify',
-    version='0.2.6',
+    version='0.2.7',
     description='parse yaml front matter and write osx tags',
     long_description=long_description,
     author='Simon Breiter, Emanuele Mazzotta',
     author_email='hello@simonbreiter.com, hello@emanuelemazzotta.com',
     license='MIT',
-    url='https://gitlab.com/sibr/tagify',
+    url='https://gitlab.com/simonbreiter/tagify',
     keywords=['yaml', 'front matter', 'osx', 'tags'],
     classifiers=[],
     py_modules=['tagify'],
