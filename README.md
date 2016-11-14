@@ -24,6 +24,11 @@ Use command line interface to specify path from where to search markdown files:
 tagify -p your/path
 ```
 
+## Contributing
+
+Contributions are always welcome. Please feel free to fork this project and 
+contact us if your changes should go upstream.
+
 ## Authors
 - Simon Breiter
 - Emanuele Mazzotta
