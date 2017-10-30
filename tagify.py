@@ -5,8 +5,7 @@ import argparse
 import sys
 from pkg_resources import get_distribution
 
-parser = argparse.ArgumentParser(description=
-                                 'Parse YAML Front Matters and write according '
+parser = argparse.ArgumentParser(description='Parse YAML Front Matters and write according '
                                  'OSX file tags.')
 
 parser.add_argument('-p',
@@ -80,11 +79,11 @@ class Tagger(object):
                 yaml_front_matter = {
                     "file": file,
                     "tags": yaml_search.group(1)
-                        .replace("Tags: ", "")
-                        .replace("'", "")
-                        .replace("`", "")
-                        .replace("\"", "")
-                        .split(',')
+                    .replace("Tags: ", "")
+                    .replace("'", "")
+                    .replace("`", "")
+                    .replace("\"", "")
+                    .split(',')
                 }
                 tags = yaml_front_matter['tags']
                 file = yaml_front_matter['file']
